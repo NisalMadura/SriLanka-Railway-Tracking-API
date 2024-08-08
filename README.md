@@ -9,7 +9,6 @@ This project involves the development of a real-time train tracking system for S
 * Security: Implementation of secure API endpoints to ensure data integrity and authorized access.
 * Scalability: Designed with scalability in mind to handle increasing amounts of data and user requests.
 
-Certainly! Here's another way to present the API endpoints:
 
 ### API Endpoints
 
