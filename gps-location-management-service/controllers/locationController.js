@@ -1,0 +1,73 @@
+const axios = require('axios');
+const Location = require('../models/location');
+const MongoLocation = require('../models/mongoLocation');
+
+const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/reverse?format=json';
+
+const reverseGeocode = async (latitude, longitude) => {
+  try {
+    const response = await axios.get(NOMINATIM_URL, {
+      params: {
+        lat: latitude,
+        lon: longitude,
+        zoom: 18,
+        addressdetails: 1
+      }
+    });
+    return response.data.display_name;
+  } catch (error) {
+    console.error('Error fetching location name:', error);
+    return 'Unknown location';
+  }
+};
+
+exports.createLocation = async (req, res) => {
+  try {
+    const { iotId, latitude, longitude, speed, engineTemp, engineStatus, timestamp, networkStrength, deviceHealth, locationAccuracy } = req.body;
+
+    
+    if (!iotId || latitude === undefined || longitude === undefined || !timestamp) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    // Reverse geocode
+    const locationName = await reverseGeocode(latitude, longitude);
+
+  
+    const mysqlLocation = await Location.create({
+      IOTId: iotId,
+      Latitude: latitude,
+      Longitude: longitude,
+      Speed: speed,
+      EngineTemp: engineTemp,
+      EngineStatus: engineStatus,
+      Timestamp: new Date(timestamp),
+      NetworkStrength: networkStrength,
+      DeviceHealth: deviceHealth,
+      LocationAccuracy: locationAccuracy,
+      LocationName: locationName,
+    });
+
+    
+    const mongoLocation = new MongoLocation({
+      IOTId: iotId,
+      Latitude: latitude,
+      Longitude: longitude,
+      Speed: speed,
+      EngineTemp: engineTemp,
+      EngineStatus: engineStatus,
+      Timestamp: new Date(timestamp),
+      NetworkStrength: networkStrength,
+      DeviceHealth: deviceHealth,
+      LocationAccuracy: locationAccuracy,
+      LocationName: locationName,
+    });
+
+    await mongoLocation.save();
+
+    res.status(201).json({ success: true, location: mysqlLocation });
+  } catch (error) {
+    console.error('Error creating location:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
