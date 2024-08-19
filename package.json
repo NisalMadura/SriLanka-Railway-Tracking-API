@@ -1,0 +1,24 @@
+{
+  "name": "srilanka-railway-tracking-api",
+  "version": "1.0.0",
+  "description": "This project involves the development of a real-time train tracking system for Sri Lanka Railways. The system utilizes IoT devices installed on train engines to transmit GPS data at one-minute intervals. This data is ingested by a RESTful API, which retains the information for 90 days, and is consumed by multiple client applications for various administrative and technical purposes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.3",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.11.0",
+    "sequelize": "^6.37.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
