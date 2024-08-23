@@ -3,6 +3,22 @@ const Location = require('../models/location');
 const MongoLocation = require('../models/mongoLocation');
 
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/reverse?format=json';
+// gps-management-service/controllers/GpsController.js
+
+const GpsService = require('../services/GpsService');
+
+const getTrainNameByIotId = async (req, res) => {
+    try {
+        const trainName = await GpsService.getTrainNameByIotId(req.params.iotId);
+        res.json({ train_name: trainName });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching train name', error });
+    }
+};
+
+module.exports = {
+    getTrainNameByIotId,
+};
 
 const reverseGeocode = async (latitude, longitude) => {
   try {

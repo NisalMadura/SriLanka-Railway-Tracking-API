@@ -1,34 +1,58 @@
 const Train = require('../models/Train');
 
-const TrainService = {
-  async createTrain(trainData) {
-    return Train.create(trainData);
-  },
-
-  async getAllTrains() {
-    return Train.findAll();
-  },
-
-  async getTrain(train_no) {
-    return Train.findByPk(train_no);
-  },
-
-  async updateTrain(train_no, trainData) {
-    const train = await Train.findByPk(train_no);
-    if (train) {
-      return train.update(trainData);
+async function createTrain(trainData) {
+    try {
+        return await Train.createTrain(trainData);
+    } catch (error) {
+        throw new Error(`Error creating train: ${error.message}`);
     }
-    return null;
-  },
+}
 
-  async deleteTrain(train_no) {
-    const train = await Train.findByPk(train_no);
-    if (train) {
-      await train.destroy();
-      return true;
+async function getAllTrains() {
+    try {
+        return await Train.getAllTrains();
+    } catch (error) {
+        throw new Error(`Error fetching all trains: ${error.message}`);
     }
-    return false;
-  },
+}
+
+async function getTrain(train_no) {
+    try {
+        return await Train.getTrain(train_no);
+    } catch (error) {
+        throw new Error(`Error fetching train: ${error.message}`);
+    }
+}
+
+async function updateTrain(train_no, trainData) {
+    try {
+        return await Train.updateTrain(train_no, trainData);
+    } catch (error) {
+        throw new Error(`Error updating train: ${error.message}`);
+    }
+}
+
+async function deleteTrain(train_no) {
+    try {
+        return await Train.deleteTrain(train_no);
+    } catch (error) {
+        throw new Error(`Error deleting train: ${error.message}`);
+    }
+}
+
+async function getTrainNameByIotId(iotId) {
+    try {
+        return await Train.getTrainNameByIotId(iotId);
+    } catch (error) {
+        throw new Error(`Error fetching train name by IoT ID: ${error.message}`);
+    }
+}
+
+module.exports = {
+    createTrain,
+    getAllTrains,
+    getTrain,
+    updateTrain,
+    deleteTrain,
+    getTrainNameByIotId,
 };
-
-module.exports = TrainService;
