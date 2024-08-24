@@ -15,9 +15,33 @@ const getTrainNameByIotId = async (req, res) => {
         res.status(500).json({ message: 'Error fetching train name', error });
     }
 };
+// New method: Get all locations
+const getAllLocations = async (req, res) => {
+  try {
+      const locations = await Location.findAll(); // Assuming using Sequelize or similar ORM
+      res.json(locations);
+  } catch (error) {
+      res.status(500).json({ message: 'Error fetching all locations', error });
+  }
+};
 
+// New method: Get location data by IOTId
+const getLocationByIotId = async (req, res) => {
+  try {
+      const location = await Location.findOne({ where: { IOTId: req.params.iotId } });
+      if (location) {
+          res.json(location);
+      } else {
+          res.status(404).json({ message: 'Location not found' });
+      }
+  } catch (error) {
+      res.status(500).json({ message: 'Error fetching location by IOTId', error });
+  }
+};
 module.exports = {
     getTrainNameByIotId,
+    getAllLocations, // Export new method
+    getLocationByIotId, // Export new method
 };
 
 const reverseGeocode = async (latitude, longitude) => {

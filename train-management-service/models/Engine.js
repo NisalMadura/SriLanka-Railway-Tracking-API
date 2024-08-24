@@ -31,6 +31,11 @@ const Engine = {
         const [result] = await pool.query('DELETE FROM engines WHERE engine_no = ?', [engine_no]);
         return result;
     },
+
+    async findByIotId(iotId) {
+        const [rows] = await db.query('SELECT * FROM engines WHERE IotID = ?', [iotId]);
+        return rows[0];
+    }
 };
 
 module.exports = Engine;

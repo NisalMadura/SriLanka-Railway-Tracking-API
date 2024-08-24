@@ -1,4 +1,4 @@
-const TripService = require('./services/TripService');
+const TripService = require('../services/TripService');
 
 const TripController = {
     async createTrip(req, res) {
@@ -29,6 +29,15 @@ const TripController = {
                 return res.status(404).json({ error: 'Trip not found' });
             }
             res.status(200).json(trip);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+    async getTripDetailsByIotId(req, res) {
+        try {
+            const { iotId } = req.params;
+            const tripDetails = await TripService.getTripDetailsByIotId(iotId);
+            res.status(200).json(tripDetails);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }

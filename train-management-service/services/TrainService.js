@@ -40,13 +40,14 @@ async function deleteTrain(train_no) {
     }
 }
 
-async function getTrainNameByIotId(iotId) {
+async function getTrainByIotId(iotId) {
     try {
-        return await Train.getTrainNameByIotId(iotId);
+        return await Train.getTrainByIotId(iotId);
     } catch (error) {
-        throw new Error(`Error fetching train name by IoT ID: ${error.message}`);
+        throw new Error(`Error fetching train by IoT ID: ${error.message}`);
     }
 }
+
 
 module.exports = {
     createTrain,
@@ -54,5 +55,5 @@ module.exports = {
     getTrain,
     updateTrain,
     deleteTrain,
-    getTrainNameByIotId,
+    getTrainByIotId,
 };

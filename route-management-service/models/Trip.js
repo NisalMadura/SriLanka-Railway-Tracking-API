@@ -17,6 +17,11 @@ const Trip = {
     async findById(tripNo) {
         const [rows] = await db.query('SELECT * FROM trips WHERE TripNo = ?', [tripNo]);
         return rows[0];
+    },
+
+    async findByTrainNo(trainNo) {
+        const [rows] = await db.query('SELECT * FROM trips WHERE TrainNo = ?', [trainNo]);
+        return rows;
     }
 };
 

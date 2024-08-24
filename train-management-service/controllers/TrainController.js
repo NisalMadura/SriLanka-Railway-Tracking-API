@@ -61,16 +61,17 @@ const deleteTrain = async (req, res) => {
 
 const getTrainByIotId = async (req, res) => {
     try {
-        const trainName = await TrainService.getTrainNameByIotId(req.params.iotId);
-        if (!trainName) {
+        const trainDetails = await TrainService.getTrainByIotId(req.params.iotId);
+        if (!trainDetails) {
             return res.status(404).json({ message: 'Train not found' });
         }
-        res.json({ train_name: trainName });
+        res.json(trainDetails);
     } catch (error) {
         console.error('Error fetching train by IoT ID:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 module.exports = {
     createTrain,

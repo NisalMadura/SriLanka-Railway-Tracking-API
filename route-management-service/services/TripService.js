@@ -1,29 +1,31 @@
+const axios = require('axios');
 const Trip = require('../models/Trip');
-const TripStopStation = require('../models/TripStopStation');
 
 const TripService = {
-    async createTrip(tripData, stopStations) {
-        const trip = await Trip.create(tripData);
+    async getTripDetailsByIotId(iotId) {
+        try {
+            // Make an HTTP request to the provided API endpoint to get train and engine details by IoT ID
+            const response = await axios.get(`http://localhost:3307/api/by-iot-id/${iotId}`);
+            const trainData = response.data;
 
-        for (let i = 0; i < stopStations.length; i++) {
-            await TripStopStation.create({
-                TripNo: trip.insertId,
-                StationID: stopStations[i],
-                Sequence: i + 1
-            });
+            if (!trainData || !trainData.train_no) {
+                throw new Error('Train data not found for the given IoT ID');
+            }
+
+            // Find trips by TrainNo in your current service
+            const trips = await Trip.findByTrainNo(trainData.train_no);
+            if (trips.length === 0) {
+                throw new Error('No trips found for the given TrainNo');
+            }
+
+            // Include the train and engine details in the response
+            return {
+                trips,
+                trainDetails: trainData
+            };
+        } catch (error) {
+            throw new Error(error.message);
         }
-
-        return trip;
-    },
-
-    async getAllTrips() {
-        return await Trip.findAll();
-    },
-
-    async getTripById(tripNo) {
-        const trip = await Trip.findById(tripNo);
-        const stopStations = await TripStopStation.findAllByTrip(tripNo);
-        return { trip, stopStations };
     }
 };
 
