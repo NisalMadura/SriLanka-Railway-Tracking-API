@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Location = sequelize.define('Location', {
+const Location = sequelize.define('location', {
   LocationID: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -47,7 +47,7 @@ const Location = sequelize.define('Location', {
   },
 }, {
   timestamps: true, 
-  tableName: 'Location',
+  tableName: 'location',
 });
 
 module.exports = Location;

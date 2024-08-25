@@ -1,36 +1,71 @@
-const pool = require('../config/db');
+const db = require('../config/db');
 
-const Train = {
-    async create(train) {
-        const [result] = await pool.query(
-            'INSERT INTO trains (train_no, engine_no, train_name, train_type, description) VALUES (?, ?, ?, ?, ?)',
-            [train.train_no, train.engine_no, train.train_name, train.train_type, train.description]
-        );
-        return result;
-    },
+async function createTrain(trainData) {
+    const { train_no, train_name, engine_no } = trainData;
+    const [result] = await db.query(
+        'INSERT INTO trains (train_no, train_name, engine_no) VALUES (?, ?, ?)', 
+        [train_no, train_name, engine_no]
+    );
+    return { train_no, train_name, engine_no, id: result.insertId };
+}
 
-    async findAll() {
-        const [rows] = await pool.query('SELECT * FROM trains');
-        return rows;
-    },
+async function getAllTrains() {
+    const [rows] = await db.query('SELECT * FROM trains');
+    return rows;
+}
 
-    async findById(train_no) {
-        const [rows] = await pool.query('SELECT * FROM trains WHERE train_no = ?', [train_no]);
-        return rows[0];
-    },
+async function getTrain(train_no) {
+    const [rows] = await db.query('SELECT * FROM trains WHERE train_no = ?', [train_no]);
+    return rows[0] || null;
+}
+async function findByEngineId(engineId) {
+    const [rows] = await db.query('SELECT TrainNo FROM trains WHERE EngineID = ?', [engineId]);
+    return rows[0];
+}
 
-    async update(train_no, train) {
-        const [result] = await pool.query(
-            'UPDATE trains SET engine_no = ?, train_name = ?, train_type = ?, description = ? WHERE train_no = ?',
-            [train.engine_no, train.train_name, train.train_type, train.description, train_no]
-        );
-        return result;
-    },
+async function updateTrain(train_no, trainData) {
+    const { train_name, engine_no } = trainData;
+    const [result] = await db.query(
+        'UPDATE trains SET train_name = ?, engine_no = ? WHERE train_no = ?', 
+        [train_name, engine_no, train_no]
+    );
+    if (result.affectedRows === 0) return null;
+    return { train_no, train_name, engine_no };
+}
 
-    async delete(train_no) {
-        const [result] = await pool.query('DELETE FROM trains WHERE train_no = ?', [train_no]);
-        return result;
-    },
+async function deleteTrain(train_no) {
+    const [result] = await db.query('DELETE FROM trains WHERE train_no = ?', [train_no]);
+    return result.affectedRows > 0;
+}
+
+
+async function getTrainByIotId(iotId) {
+    // Find the engine using IoT ID
+    const [engineRows] = await db.query('SELECT * FROM engines WHERE iot_id = ?', [iotId]);
+    if (engineRows.length === 0) {
+        return null;
+    }
+    const engine = engineRows[0];
+
+    // Find the train using the engine number
+    const [trainRows] = await db.query('SELECT * FROM trains WHERE engine_no = ?', [engine.engine_no]);
+    if (trainRows.length === 0) {
+        return null;
+    }
+    const train = trainRows[0];
+
+    // Combine engine and train details
+    return { ...train, engine };
+
+    
+}
+
+module.exports = {
+    createTrain,
+    getAllTrains,
+    getTrain,
+    updateTrain,
+    deleteTrain,
+    getTrainByIotId,
+    findByEngineId,
 };
-
-module.exports = Train;

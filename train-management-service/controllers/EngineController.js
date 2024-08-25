@@ -13,7 +13,7 @@ const EngineController = {
     async getAllEngines(req, res) {
         try {
             const engines = await Engine.findAll();
-            res.status(200).json({ success: true, data: engines });
+            res.json(engines);
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }

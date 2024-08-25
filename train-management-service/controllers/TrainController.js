@@ -1,54 +1,83 @@
-const Train = require('../models/Train');
+const TrainService = require('../services/TrainService');
 
-const TrainController = {
-    async createTrain(req, res) {
-        try {
-            const result = await Train.create(req.body);
-            res.status(201).json({ success: true, message: 'Train created successfully', data: result });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
-    },
-
-    async getAllTrains(req, res) {
-        try {
-            const trains = await Train.findAll();
-            res.status(200).json({ success: true, data: trains });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
-    },
-
-    async getTrain(req, res) {
-        try {
-            const train = await Train.findById(req.params.train_no);
-            if (train) {
-                res.status(200).json({ success: true, data: train });
-            } else {
-                res.status(404).json({ success: false, message: 'Train not found' });
-            }
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
-    },
-
-    async updateTrain(req, res) {
-        try {
-            const result = await Train.update(req.params.train_no, req.body);
-            res.status(200).json({ success: true, message: 'Train updated successfully', data: result });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
-    },
-
-    async deleteTrain(req, res) {
-        try {
-            const result = await Train.delete(req.params.train_no);
-            res.status(200).json({ success: true, message: 'Train deleted successfully', data: result });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
-    },
+const createTrain = async (req, res) => {
+    try {
+        const newTrain = await TrainService.createTrain(req.body);
+        res.status(201).json(newTrain);
+    } catch (error) {
+        console.error('Error creating train:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
 };
 
-module.exports = TrainController;
+const getAllTrains = async (req, res) => {
+    try {
+        const trains = await TrainService.getAllTrains();
+        res.json(trains);
+    } catch (error) {
+        console.error('Error fetching trains:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+const getTrain = async (req, res) => {
+    try {
+        const train = await TrainService.getTrain(req.params.train_no);
+        if (!train) {
+            return res.status(404).json({ message: 'Train not found' });
+        }
+        res.json(train);
+    } catch (error) {
+        console.error('Error fetching train:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+const updateTrain = async (req, res) => {
+    try {
+        const updatedTrain = await TrainService.updateTrain(req.params.train_no, req.body);
+        if (!updatedTrain) {
+            return res.status(404).json({ message: 'Train not found' });
+        }
+        res.json(updatedTrain);
+    } catch (error) {
+        console.error('Error updating train:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+const deleteTrain = async (req, res) => {
+    try {
+        const deletedTrain = await TrainService.deleteTrain(req.params.train_no);
+        if (!deletedTrain) {
+            return res.status(404).json({ message: 'Train not found' });
+        }
+        res.json({ message: 'Train deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting train:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+const getTrainByIotId = async (req, res) => {
+    try {
+        const trainDetails = await TrainService.getTrainByIotId(req.params.iotId);
+        if (!trainDetails) {
+            return res.status(404).json({ message: 'Train not found' });
+        }
+        res.json(trainDetails);
+    } catch (error) {
+        console.error('Error fetching train by IoT ID:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+
+module.exports = {
+    createTrain,
+    getAllTrains,
+    getTrain,
+    updateTrain,
+    deleteTrain,
+    getTrainByIotId,
+};

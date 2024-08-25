@@ -8,6 +8,7 @@ app.use(express.json());
 
 app.use('/api', trainRoutes);
 app.use('/api', engineRoutes);
+app.use('/api/trains', trainRoutes);
 
 const PORT = process.env.PORT || 3000;
 
