@@ -10,5 +10,5 @@ router.get('/train-name-by-iot-id/:iotId', locationController.getTrainNameByIotI
 // New routes
 router.get('/all', locationController.getAllLocations); // Route to get all locations
 router.get('/:iotId', locationController.getLocationByIotId); // Route to get location by IOTId
-
+router.post('/', locationController.createLocation);
 module.exports = router;

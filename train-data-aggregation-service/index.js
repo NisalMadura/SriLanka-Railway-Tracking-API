@@ -1,10 +1,19 @@
+const express = require('express');
 const axios = require('axios');
+const cors = require('cors');
 const db = require('./db'); // Ensure this points to your database connection
+
+const app = express();
+const PORT = 3309; // You can choose any port that is free on your system
+
+app.use(cors({
+    origin: 'http://localhost:3001' // Allow requests from your frontend
+  }));
+  
 
 const TRIP_API_URL = 'http://localhost:3308/api/trips/by-iot-id/';
 const TRAIN_API_URL = 'http://localhost:3307/api/by-iot-id/';
 const LOCATION_API_URL = 'http://localhost:3000/api/location/';
-
 
 // Function to convert ISO 8601 datetime to MySQL DATETIME format
 function convertToMySQLDatetime(isoDate) {
@@ -19,30 +28,26 @@ async function fetchActiveIotDevices() {
 
 async function fetchData(iotId) {
     try {
-        // Fetch data from train and trip services
-        const [trainResponse, tripResponse,locationResponse] = await Promise.all([
+        // Fetch data from train, trip, and location services
+        const [trainResponse, tripResponse, locationResponse] = await Promise.all([
             axios.get(`${TRAIN_API_URL}${iotId}`),
             axios.get(`${TRIP_API_URL}${iotId}`),
-            axios.get(`${LOCATION_API_URL}${iotId}`),
-
-            // Add GPS API call if required
+            axios.get(`${LOCATION_API_URL}${iotId}`)
         ]);
 
         const trainData = trainResponse.data;
         const tripData = tripResponse.data;
         const locationData = locationResponse.data;
 
-
         // Ensure trainData and tripData are objects
         if (typeof trainData !== 'object' || typeof tripData !== 'object' || typeof locationData !== 'object') {
-            console.error('Train or Trip data is not an object:', trainData, tripData,locationData);
+            console.error('Train, Trip, or Location data is not an object:', trainData, tripData, locationData);
             return;
         }
 
-        // Extract train and engine details
+        // Extract data
         const locationDetails = locationData;
         const trainDetails = trainData;
-        const engineDetails = trainData.engine;
         const trips = tripData.trips[0]; // Assuming there is at least one trip and we take the first one
 
         if (!trips) {
@@ -55,12 +60,14 @@ async function fetchData(iotId) {
         const arrivalTime = convertToMySQLDatetime(trips.ArrivalTime);
         const timestamp = convertToMySQLDatetime(locationDetails.Timestamp);
 
+        // SQL Query to insert/update data
         const sql = `
             INSERT INTO RunningTrains (IOTid, TrainName, Latitude, Longitude, Speed, Timestamp, LocationName,
                                        EngineStatus, DepartureStation, DepartureTime, ArrivalStation,
                                        ArrivalTime, NextArrivalStation, NextArrivalTime, TripNo, Duration)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
+                TrainName = VALUES(TrainName),
                 Latitude = VALUES(Latitude),
                 Longitude = VALUES(Longitude),
                 Speed = VALUES(Speed),
@@ -78,23 +85,24 @@ async function fetchData(iotId) {
                 UpdatedAt = CURRENT_TIMESTAMP;
         `;
 
+        // Values for the query
         const values = [
-            iotId, // Assuming IOTid is the same as iotId
+            iotId,
             trainDetails.train_name,
-            locationDetails.Latitude, // Placeholder for Latitude
-            locationDetails.Longitude, // Placeholder for Longitude
-            locationDetails.Speed, // Placeholder for Speed
-            timestamp, // Placeholder for Timestamp
-            locationDetails.LocationName, // Placeholder for LocationName
-            locationDetails.EngineStatus,
+            locationDetails.Latitude || null,
+            locationDetails.Longitude || null,
+            locationDetails.Speed || null,
+            timestamp || null,
+            locationDetails.LocationName || null,
+            locationDetails.EngineStatus || null,
             null, // Placeholder for DepartureStation
-            departureTime,
+            departureTime || null,
             null, // Placeholder for ArrivalStation
-            arrivalTime,
+            arrivalTime || null,
             null, // Placeholder for NextArrivalStation
             null, // Placeholder for NextArrivalTime
-            trips.TripNo,
-            trips.Duration
+            trips.TripNo || null,
+            trips.Duration || null
         ];
 
         await db.execute(sql, values);
@@ -113,4 +121,23 @@ async function startDataAggregation() {
     }
 }
 
+// Start data aggregation
 startDataAggregation();
+
+app.get('/train-data', async (req, res) => {
+    console.log('Received request for /train-data');
+    try {
+        const [rows] = await db.execute('SELECT * FROM RunningTrains');
+        console.log('Data retrieved:', rows);
+        res.json(rows);
+    } catch (error) {
+        console.error('Error retrieving train data:', error);
+        res.status(500).json({ error: 'Error retrieving train data' });
+    }
+});
+
+
+// Start Express server
+app.listen(PORT, () => {
+    console.log(`Data Aggregation Service is running on http://localhost:${PORT}`);
+});
