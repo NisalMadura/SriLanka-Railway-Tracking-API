@@ -14,6 +14,7 @@ app.use(cors({
 const TRIP_API_URL = 'http://localhost:3308/api/trips/by-iot-id/';
 const TRAIN_API_URL = 'http://localhost:3307/api/by-iot-id/';
 const LOCATION_API_URL = 'http://localhost:3000/api/location/';
+const moment = require('moment-timezone'); // Ensure you have moment-timezone installed
 
 // Function to convert ISO 8601 datetime to MySQL DATETIME format
 function convertToMySQLDatetime(isoDate) {
@@ -55,17 +56,30 @@ async function fetchData(iotId) {
             return;
         }
 
-        // Convert datetime values to MySQL format
-        const departureTime = convertToMySQLDatetime(trips.DepartureTime);
-        const arrivalTime = convertToMySQLDatetime(trips.ArrivalTime);
-        const timestamp = convertToMySQLDatetime(locationDetails.Timestamp);
+        const departureTime = moment.tz(trips.DepartureTime, 'Asia/Colombo');
+
+        // Calculate the arrival time by adding the duration to the departure time
+        let arrivalTime = null;
+        if (departureTime && trips.Duration) {
+            const durationParts = trips.Duration.split(':').map(Number);
+            arrivalTime = departureTime
+                .clone()
+                .add(durationParts[0], 'hours')
+                .add(durationParts[1], 'minutes')
+                .add(durationParts[2], 'seconds');
+        }
+
+        // Format departure and arrival times for MySQL
+        const formattedDepartureTime = convertToMySQLDatetime(departureTime.toDate());
+        const formattedArrivalTime = convertToMySQLDatetime(arrivalTime ? arrivalTime.toDate() : null);
+        const timestamp = convertToMySQLDatetime(moment.tz(locationDetails.Timestamp, 'Asia/Colombo').toDate());
 
         // SQL Query to insert/update data
         const sql = `
             INSERT INTO RunningTrains (IOTid, TrainName, Latitude, Longitude, Speed, Timestamp, LocationName,
-                                       EngineStatus, DepartureStation, DepartureTime, ArrivalStation,
+                                       EngineStatus, DepartureTime, 
                                        ArrivalTime, NextArrivalStation, NextArrivalTime, TripNo, Duration)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
                 TrainName = VALUES(TrainName),
                 Latitude = VALUES(Latitude),
@@ -74,9 +88,9 @@ async function fetchData(iotId) {
                 Timestamp = VALUES(Timestamp),
                 LocationName = VALUES(LocationName),
                 EngineStatus = VALUES(EngineStatus),
-                DepartureStation = VALUES(DepartureStation),
+                
                 DepartureTime = VALUES(DepartureTime),
-                ArrivalStation = VALUES(ArrivalStation),
+               
                 ArrivalTime = VALUES(ArrivalTime),
                 NextArrivalStation = VALUES(NextArrivalStation),
                 NextArrivalTime = VALUES(NextArrivalTime),
@@ -95,10 +109,9 @@ async function fetchData(iotId) {
             timestamp || null,
             locationDetails.LocationName || null,
             locationDetails.EngineStatus || null,
-            null, // Placeholder for DepartureStation
-            departureTime || null,
-            null, // Placeholder for ArrivalStation
-            arrivalTime || null,
+           
+            formattedDepartureTime || null,
+            formattedArrivalTime || null,
             null, // Placeholder for NextArrivalStation
             null, // Placeholder for NextArrivalTime
             trips.TripNo || null,

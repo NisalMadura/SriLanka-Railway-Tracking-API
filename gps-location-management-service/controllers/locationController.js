@@ -105,7 +105,7 @@ const reverseGeocode = async (latitude, longitude) => {
       params: {
         lat: latitude,
         lon: longitude,
-        zoom: 15, // Adjust zoom level as needed
+        zoom: 18, // Adjust zoom level as needed
         addressdetails: 1
       }
     });
