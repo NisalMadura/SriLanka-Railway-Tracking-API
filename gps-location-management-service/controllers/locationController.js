@@ -5,7 +5,7 @@ const GpsService = require('../services/GpsService');
 
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/reverse?format=json';
 
-// Controller function to create a new location
+// create a new location
 exports.createLocation = async (req, res) => {
   try {
     const { iotId, latitude, longitude, speed, engineTemp, engineStatus, timestamp, networkStrength, deviceHealth, locationAccuracy } = req.body;
@@ -49,7 +49,7 @@ exports.createLocation = async (req, res) => {
     });
     await mongoLocation.save();
 
-    // Respond with success
+    
     res.status(201).json({ success: true, location: mysqlLocation });
   } catch (error) {
     console.error('Error creating location:', error);
@@ -105,29 +105,29 @@ const reverseGeocode = async (latitude, longitude) => {
       params: {
         lat: latitude,
         lon: longitude,
-        zoom: 15, // Adjust zoom level as needed
+        zoom: 18, 
         addressdetails: 1
       }
     });
 
     const { address } = response.data;
 
-    // Extract address components
+    
     const city = address.city || address.town || address.village || address.suburb || '';
     const locality = address.neighborhood || address.road || '';
     const state = address.state || address.province || '';
     const country = address.country || '';
 
-    // Initialize location name
+    
     let locationName = city;
 
-    // Check for railway station keyword in locality or other address components
+   
     const isRailwayStation = [locality, address.railway, address.amenity].some(term => term && term.toLowerCase().includes('station'));
 
     if (isRailwayStation) {
       locationName = `${city} Station`; // Append "Station" if it's a railway station
     } else if (locality) {
-      locationName = `${locality}, ${city}`; // Combine locality and city if locality is present
+      locationName = `${locality}, ${city}`; 
     }
 
     if (state) {

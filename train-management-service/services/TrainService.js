@@ -1,4 +1,5 @@
 const Train = require('../models/Train');
+const Engine = require('../models/Engine');
 
 async function createTrain(trainData) {
     try {
@@ -42,9 +43,27 @@ async function deleteTrain(train_no) {
 
 async function getTrainByIotId(iotId) {
     try {
-        return await Train.getTrainByIotId(iotId);
+        
+        const engine = await Engine.findOne({ where: { iot_id: iotId } });
+
+        if (!engine) {
+            console.warn('No engine found with IoT ID:', iotId);
+            return null;
+        }
+
+        
+        const train = await Train.findOne({ where: { engine_no: engine.engine_no } });
+
+        if (!train) {
+            console.warn('No train found with engine number:', engine.engine_no);
+            return null;
+        }
+
+        
+        return { ...train.toJSON(), engine: engine.toJSON() };
     } catch (error) {
-        throw new Error(`Error fetching train by IoT ID: ${error.message}`);
+        console.error('Error fetching train by IoT ID:', error);
+        throw error;
     }
 }
 

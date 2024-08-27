@@ -1,28 +1,43 @@
-const db = require('../config/db');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db'); 
 
-const Trip = {
-    async create(trip) {
-        const [result] = await db.query(
-            'INSERT INTO trips (RouteID, DepartureTime, ArrivalTime, Duration, TrainNo) VALUES (?, ?, ?, ?, ?)',
-            [trip.RouteID, trip.DepartureTime, trip.ArrivalTime, trip.Duration, trip.TrainNo]
-        );
-        return result;
-    },
-
-    async findAll() {
-        const [rows] = await db.query('SELECT * FROM trips');
-        return rows;
-    },
-
-    async findById(tripNo) {
-        const [rows] = await db.query('SELECT * FROM trips WHERE TripNo = ?', [tripNo]);
-        return rows[0];
-    },
-
-    async findByTrainNo(trainNo) {
-        const [rows] = await db.query('SELECT * FROM trips WHERE TrainNo = ?', [trainNo]);
-        return rows;
+const Trip = sequelize.define('Trip', {
+  TripNo: {
+    type: DataTypes.STRING(10),
+    allowNull: false,
+    primaryKey: true
+  },
+  RouteID: {
+    type: DataTypes.STRING(10),
+    allowNull: true,
+    references: {
+      model: 'Routes', 
+      key: 'RouteID'
     }
-};
+  },
+  DepartureTime: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  ArrivalTime: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  Duration: {
+    type: DataTypes.TIME,
+    allowNull: true
+  },
+  TrainNo: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+    references: {
+      model: 'Trains', 
+      key: 'train_no'
+    }
+  }
+}, {
+  tableName: 'trips',
+  timestamps: false
+});
 
 module.exports = Trip;
