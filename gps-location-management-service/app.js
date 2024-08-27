@@ -1,8 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const locationRoutes = require('./routes/locationRoutes');
-const sequelize = require('./config/database'); // Sequelize MySQL
-require('./config/mongodb'); // Mongoose MongoDB
+const sequelize = require('./config/database'); 
+require('./config/mongodb'); 
 
 const app = express();
 const PORT = process.env.PORT || 3000;

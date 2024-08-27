@@ -1,20 +1,20 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
-const db = require('./db'); // Ensure this points to your database connection
+const db = require('./db'); 
 
 const app = express();
-const PORT = 3309; // You can choose any port that is free on your system
+const PORT = 3309; 
 
 app.use(cors({
-    origin: 'http://localhost:3001' // Allow requests from your frontend
+    origin: 'http://localhost:3001' 
   }));
   
 
 const TRIP_API_URL = 'http://localhost:3308/api/trips/by-iot-id/';
 const TRAIN_API_URL = 'http://localhost:3307/api/by-iot-id/';
 const LOCATION_API_URL = 'http://localhost:3000/api/location/';
-const moment = require('moment-timezone'); // Ensure you have moment-timezone installed
+const moment = require('moment-timezone'); 
 
 // Function to convert ISO 8601 datetime to MySQL DATETIME format
 function convertToMySQLDatetime(isoDate) {
@@ -23,7 +23,7 @@ function convertToMySQLDatetime(isoDate) {
 }
 
 async function fetchActiveIotDevices() {
-    const [rows] = await db.execute('SELECT IOTid FROM IoTDeviceStatus WHERE Status = 1');
+    const [rows] = await db.execute('SELECT IOTid FROM iotdevicestatus WHERE Status = 1');
     return rows.map(row => row.IOTid);
 }
 
@@ -49,7 +49,7 @@ async function fetchData(iotId) {
         // Extract data
         const locationDetails = locationData;
         const trainDetails = trainData;
-        const trips = tripData.trips[0]; // Assuming there is at least one trip and we take the first one
+        const trips = tripData.trips[0]; 
 
         if (!trips) {
             console.error('No trips found for the given IOT ID:', iotId);
@@ -74,9 +74,9 @@ async function fetchData(iotId) {
         const formattedArrivalTime = convertToMySQLDatetime(arrivalTime ? arrivalTime.toDate() : null);
         const timestamp = convertToMySQLDatetime(moment.tz(locationDetails.Timestamp, 'Asia/Colombo').toDate());
 
-        // SQL Query to insert/update data
+        
         const sql = `
-            INSERT INTO RunningTrains (IOTid, TrainName, Latitude, Longitude, Speed, Timestamp, LocationName,
+            INSERT INTO runningtrains (IOTid, TrainName, Latitude, Longitude, Speed, Timestamp, LocationName,
                                        EngineStatus, DepartureTime, 
                                        ArrivalTime, NextArrivalStation, NextArrivalTime, TripNo, Duration)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -99,7 +99,7 @@ async function fetchData(iotId) {
                 UpdatedAt = CURRENT_TIMESTAMP;
         `;
 
-        // Values for the query
+        
         const values = [
             iotId,
             trainDetails.train_name,
@@ -112,8 +112,8 @@ async function fetchData(iotId) {
            
             formattedDepartureTime || null,
             formattedArrivalTime || null,
-            null, // Placeholder for NextArrivalStation
-            null, // Placeholder for NextArrivalTime
+            null, 
+            null, 
             trips.TripNo || null,
             trips.Duration || null
         ];
@@ -130,17 +130,17 @@ async function startDataAggregation() {
         for (const iotId of activeIotDevices) {
             await fetchData(iotId);
         }
-        await new Promise(resolve => setTimeout(resolve, 30000)); // Wait for 30 seconds before the next update
+        await new Promise(resolve => setTimeout(resolve, 30000)); 
     }
 }
 
-// Start data aggregation
+
 startDataAggregation();
 
 app.get('/train-data', async (req, res) => {
     console.log('Received request for /train-data');
     try {
-        const [rows] = await db.execute('SELECT * FROM RunningTrains');
+        const [rows] = await db.execute('SELECT * FROM runningtrains');
         console.log('Data retrieved:', rows);
         res.json(rows);
     } catch (error) {
@@ -150,7 +150,7 @@ app.get('/train-data', async (req, res) => {
 });
 
 
-// Start Express server
+
 app.listen(PORT, () => {
     console.log(`Data Aggregation Service is running on http://localhost:${PORT}`);
 });

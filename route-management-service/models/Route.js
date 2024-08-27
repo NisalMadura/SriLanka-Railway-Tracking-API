@@ -1,23 +1,27 @@
-const db = require('../config/db');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db'); // Import your Sequelize instance
 
-const Route = {
-    async create(route) {
-        const [result] = await db.query(
-            'INSERT INTO routes (LineID, DepartureStation, ArrivalStation) VALUES (?, ?, ?)',
-            [route.LineID, route.DepartureStation, route.ArrivalStation]
-        );
-        return result;
-    },
-
-    async findAll() {
-        const [rows] = await db.query('SELECT * FROM routes');
-        return rows;
-    },
-
-    async findById(routeId) {
-        const [rows] = await db.query('SELECT * FROM routes WHERE RouteID = ?', [routeId]);
-        return rows[0];
-    }
-};
+const Route = sequelize.define('Route', {
+  RouteID: {
+    type: DataTypes.STRING(10),
+    allowNull: false,
+    primaryKey: true
+  },
+  LineID: {
+    type: DataTypes.STRING(10),
+    allowNull: true
+  },
+  DepartureStation: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  },
+  ArrivalStation: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  }
+}, {
+  tableName: 'routes',
+  timestamps: false
+});
 
 module.exports = Route;

@@ -1,41 +1,57 @@
-const pool = require('../config/db');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db'); 
 
-const Engine = {
-    async create(engine) {
-        const [result] = await pool.query(
-            'INSERT INTO engines (engine_no, iot_id, status, engine_type, other_engine_data) VALUES (?, ?, ?, ?, ?)',
-            [engine.engine_no, engine.iot_id, engine.status, engine.engine_type, JSON.stringify(engine.other_engine_data)]
-        );
-        return result;
-    },
-
-    async findAll() {
-        const [rows] = await pool.query('SELECT * FROM engines');
-        return rows;
-    },
-
-    async findById(engine_no) {
-        const [rows] = await pool.query('SELECT * FROM engines WHERE engine_no = ?', [engine_no]);
-        return rows[0];
-    },
-
-    async update(engine_no, engine) {
-        const [result] = await pool.query(
-            'UPDATE engines SET iot_id = ?, status = ?, engine_type = ?, other_engine_data = ? WHERE engine_no = ?',
-            [engine.iot_id, engine.status, engine.engine_type, JSON.stringify(engine.other_engine_data), engine_no]
-        );
-        return result;
-    },
-
-    async delete(engine_no) {
-        const [result] = await pool.query('DELETE FROM engines WHERE engine_no = ?', [engine_no]);
-        return result;
-    },
-
-    async findByIotId(iotId) {
-        const [rows] = await db.query('SELECT * FROM engines WHERE IotID = ?', [iotId]);
-        return rows[0];
-    }
-};
+const Engine = sequelize.define('Engine', {
+  engine_no: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    primaryKey: true
+  },
+  iot_id: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    unique: true
+  },
+  status: {
+    type: DataTypes.STRING(50),
+    allowNull: true
+  },
+  engine_type: {
+    type: DataTypes.STRING(50),
+    allowNull: true
+  },
+  manufacturer: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  },
+  model: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  },
+  horsepower: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  manufacture_date: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  last_service_date: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  next_service_due: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  is_operational: {
+    type: DataTypes.TINYINT(1),
+    allowNull: true,
+    defaultValue: 1
+  }
+}, {
+  tableName: 'engines',
+  timestamps: false
+});
 
 module.exports = Engine;
