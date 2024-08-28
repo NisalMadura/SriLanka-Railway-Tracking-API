@@ -33,6 +33,7 @@ const TripController = {
             res.status(500).json({ error: error.message });
         }
     },
+
     async getTripDetailsByIotId(req, res) {
         try {
             const { iotId } = req.params;

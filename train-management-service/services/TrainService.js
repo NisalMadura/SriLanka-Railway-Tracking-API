@@ -3,7 +3,7 @@ const Engine = require('../models/Engine');
 
 async function createTrain(trainData) {
     try {
-        return await Train.createTrain(trainData);
+        return await Train.create(trainData);
     } catch (error) {
         throw new Error(`Error creating train: ${error.message}`);
     }
@@ -11,7 +11,7 @@ async function createTrain(trainData) {
 
 async function getAllTrains() {
     try {
-        return await Train.getAllTrains();
+        return await Train.findAll(); // Use findAll to get all trains
     } catch (error) {
         throw new Error(`Error fetching all trains: ${error.message}`);
     }
@@ -19,7 +19,7 @@ async function getAllTrains() {
 
 async function getTrain(train_no) {
     try {
-        return await Train.getTrain(train_no);
+        return await Train.findOne({ where: { train_no } }); // Use findOne to get a specific train
     } catch (error) {
         throw new Error(`Error fetching train: ${error.message}`);
     }
@@ -27,7 +27,11 @@ async function getTrain(train_no) {
 
 async function updateTrain(train_no, trainData) {
     try {
-        return await Train.updateTrain(train_no, trainData);
+        const [affectedRows] = await Train.update(trainData, { where: { train_no } });
+        if (affectedRows === 0) {
+            return null; // No rows updated, train not found
+        }
+        return Train.findOne({ where: { train_no } }); // Return the updated train
     } catch (error) {
         throw new Error(`Error updating train: ${error.message}`);
     }
@@ -35,7 +39,11 @@ async function updateTrain(train_no, trainData) {
 
 async function deleteTrain(train_no) {
     try {
-        return await Train.deleteTrain(train_no);
+        const deletedRows = await Train.destroy({ where: { train_no } });
+        if (deletedRows === 0) {
+            return null; // No rows deleted, train not found
+        }
+        return { message: 'Train deleted successfully' };
     } catch (error) {
         throw new Error(`Error deleting train: ${error.message}`);
     }
@@ -43,7 +51,6 @@ async function deleteTrain(train_no) {
 
 async function getTrainByIotId(iotId) {
     try {
-        
         const engine = await Engine.findOne({ where: { iot_id: iotId } });
 
         if (!engine) {
@@ -51,7 +58,6 @@ async function getTrainByIotId(iotId) {
             return null;
         }
 
-        
         const train = await Train.findOne({ where: { engine_no: engine.engine_no } });
 
         if (!train) {
@@ -59,14 +65,12 @@ async function getTrainByIotId(iotId) {
             return null;
         }
 
-        
         return { ...train.toJSON(), engine: engine.toJSON() };
     } catch (error) {
         console.error('Error fetching train by IoT ID:', error);
         throw error;
     }
 }
-
 
 module.exports = {
     createTrain,

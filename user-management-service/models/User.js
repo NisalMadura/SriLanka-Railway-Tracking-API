@@ -1,52 +1,64 @@
-const db = require('../config/db');
+const { DataTypes, Model } = require('sequelize');
+const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
 
-class User {
-    static async createUser(username, password, roleID) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const [result] = await db.query('INSERT INTO Users (Username, PasswordHash, RoleID) VALUES (?, ?, ?)', [username, hashedPassword, roleID]);
-        return result.insertId;
+class User extends Model {
+  static async createUser(username, password, roleID) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    return this.create({
+      Username: username,
+      PasswordHash: hashedPassword,
+      RoleID: roleID,
+    });
+  }
+
+  static async updateUser(userID, username, password, roleID) {
+    const user = await this.findByPk(userID);
+    if (!user) {
+      throw new Error('User not found');
     }
 
-    static async getUser(userID) {
-        const [rows] = await db.query('SELECT * FROM Users WHERE UserID = ?', [userID]);
-        return rows[0];
-    }
+    if (username) user.Username = username;
+    if (password) user.PasswordHash = await bcrypt.hash(password, 10);
+    if (roleID) user.RoleID = roleID;
 
-    static async updateUser(userID, username, password, roleID) {
-        let query = 'UPDATE Users SET ';
-        const params = [];
-        if (username) {
-            query += 'Username = ?, ';
-            params.push(username);
-        }
-        if (password) {
-            query += 'PasswordHash = ?, ';
-            params.push(await bcrypt.hash(password, 10));
-        }
-        if (roleID) {
-            query += 'RoleID = ?, ';
-            params.push(roleID);
-        }
-        query = query.slice(0, -2); // Remove trailing comma
-        query += ' WHERE UserID = ?';
-        params.push(userID);
+    return user.save();
+  }
 
-        await db.query(query, params);
+  static async deleteUser(userID) {
+    const user = await this.findByPk(userID);
+    if (!user) {
+      throw new Error('User not found');
     }
+    return user.destroy();
+  }
 
-    static async deleteUser(userID) {
-        await db.query('DELETE FROM Users WHERE UserID = ?', [userID]);
+  static async authenticateUser(username, password) {
+    const user = await this.findOne({ where: { Username: username } });
+    if (user && await bcrypt.compare(password, user.PasswordHash)) {
+      return user;
     }
-
-    static async authenticateUser(username, password) {
-        const [rows] = await db.query('SELECT * FROM Users WHERE Username = ?', [username]);
-        const user = rows[0];
-        if (user && await bcrypt.compare(password, user.PasswordHash)) {
-            return user;
-        }
-        throw new Error('Invalid credentials');
-    }
+    throw new Error('Invalid credentials');
+  }
 }
+
+User.init({
+  Username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  PasswordHash: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  RoleID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+}, {
+  sequelize,
+  modelName: 'User',
+});
 
 module.exports = User;

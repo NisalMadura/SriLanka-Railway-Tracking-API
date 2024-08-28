@@ -15,7 +15,7 @@ async function login(req, res) {
     const { username, password } = req.body;
     try {
         const user = await User.authenticateUser(username, password);
-        const token = jwt.sign({ userID: user.UserID, roleID: user.RoleID }, 'your_jwt_secret', { expiresIn: '1h' });
+        const token = jwt.sign({ userID: user.UserID, roleID: user.RoleID }, 'DAW3bxw-_DNUvxtyWTpbWainCNTdF-aL2-eCqJDokmhchWCL7HKdBFzdY0vIvkpf', { expiresIn: '1h' });
         res.json({ token });
     } catch (error) {
         res.status(401).json({ error: error.message });

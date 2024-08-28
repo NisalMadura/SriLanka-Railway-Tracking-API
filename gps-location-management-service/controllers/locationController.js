@@ -10,12 +10,12 @@ exports.createLocation = async (req, res) => {
   try {
     const { iotId, latitude, longitude, speed, engineTemp, engineStatus, timestamp, networkStrength, deviceHealth, locationAccuracy } = req.body;
 
-    // Validate required fields
+    
     if (!iotId || latitude === undefined || longitude === undefined || !timestamp) {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
-    // Reverse geocode to get location name
+    
     const locationName = await reverseGeocode(latitude, longitude);
 
     // Save to MySQL
@@ -71,7 +71,7 @@ exports.getTrainNameByIotId = async (req, res) => {
 // Controller function to get all locations
 exports.getAllLocations = async (req, res) => {
   try {
-    const locations = await Location.findAll(); // Assuming using Sequelize or similar ORM
+    const locations = await Location.findAll(); 
     res.json(locations);
   } catch (error) {
     console.error('Error fetching all locations:', error);
@@ -79,10 +79,10 @@ exports.getAllLocations = async (req, res) => {
   }
 };
 
-// Controller function to get location by IoT ID
+
 exports.getLocationByIotId = async (req, res) => {
   try {
-    // Fetch the latest location by sorting on the timestamp in descending order
+    
     const location = await Location.findOne({
       where: { IOTId: req.params.iotId },
       order: [['createdAt', 'DESC']] // or 'updatedAt' if that is your timestamp field
@@ -125,7 +125,7 @@ const reverseGeocode = async (latitude, longitude) => {
     const isRailwayStation = [locality, address.railway, address.amenity].some(term => term && term.toLowerCase().includes('station'));
 
     if (isRailwayStation) {
-      locationName = `${city} Station`; // Append "Station" if it's a railway station
+      locationName = `${city} Station`; 
     } else if (locality) {
       locationName = `${locality}, ${city}`; 
     }

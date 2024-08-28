@@ -1,0 +1,11 @@
+const express = require('express');
+const TrainScheduleController = require('../controllers/trainScheduleController');
+const router = express.Router();
+
+router.post('/train-schedules', TrainScheduleController.createTrainSchedule);
+router.get('/train-schedules', TrainScheduleController.getAllTrainSchedules);
+router.get('/train-schedules/:id', TrainScheduleController.getTrainScheduleById);
+router.put('/train-schedules/:id', TrainScheduleController.updateTrainSchedule);
+router.delete('/train-schedules/:id', TrainScheduleController.deleteTrainSchedule);
+
+module.exports = router;
