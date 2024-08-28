@@ -1,0 +1,56 @@
+const TrainScheduleService = require('../services/trainScheduleService');
+
+class TrainScheduleController {
+  static async createTrainSchedule(req, res) {
+    try {
+      const trainSchedule = await TrainScheduleService.createTrainSchedule(req.body);
+      res.status(201).json(trainSchedule);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  static async getAllTrainSchedules(req, res) {
+    try {
+      const trainSchedules = await TrainScheduleService.getAllTrainSchedules();
+      res.status(200).json(trainSchedules);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  static async getTrainScheduleById(req, res) {
+    try {
+      const trainSchedule = await TrainScheduleService.getTrainScheduleById(req.params.id);
+      if (!trainSchedule) {
+        return res.status(404).json({ error: 'TrainSchedule not found' });
+      }
+      res.status(200).json(trainSchedule);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  static async updateTrainSchedule(req, res) {
+    try {
+      const trainSchedule = await TrainScheduleService.updateTrainSchedule(req.params.id, req.body);
+      if (!trainSchedule) {
+        return res.status(404).json({ error: 'TrainSchedule not found' });
+      }
+      res.status(200).json(trainSchedule);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  static async deleteTrainSchedule(req, res) {
+    try {
+      await TrainScheduleService.deleteTrainSchedule(req.params.id);
+      res.status(204).end();
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+}
+
+module.exports = TrainScheduleController;

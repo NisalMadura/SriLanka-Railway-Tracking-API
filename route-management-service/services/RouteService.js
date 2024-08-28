@@ -26,7 +26,7 @@ const RouteService = {
         return { route, stations };
     },
     async updateRoute(routeId, routeData, stations) {
-        const route = await Route.findByPk(routeId); // Use findByPk instead of findById
+        const route = await Route.findByPk(routeId); 
         if (route) {
             await route.update(routeData);
 
@@ -48,7 +48,7 @@ const RouteService = {
     },
 
     async deleteRoute(routeId) {
-        const route = await Route.findByPk(routeId); // Use findByPk instead of findById
+        const route = await Route.findByPk(routeId); 
         if (route) {
             await RouteStation.destroy({ where: { RouteID: routeId } });
             await route.destroy();

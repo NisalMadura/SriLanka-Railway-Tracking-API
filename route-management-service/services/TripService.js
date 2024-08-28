@@ -7,8 +7,8 @@ const TripService = {
             const trip = await Trip.create(tripData);
 
             for (let i = 0; i < stopStations.length; i++) {
-                // Add logic here if you need to create related stop stations
-                // e.g., await StopStation.create({ TripID: trip.id, StationID: stopStations[i], Sequence: i + 1 });
+                
+               
             }
 
             return trip;
@@ -27,7 +27,7 @@ const TripService = {
 
     async getTripById(tripId) {
         try {
-            const trip = await Trip.findByPk(tripId); // Adjust based on your ORM
+            const trip = await Trip.findByPk(tripId); 
             return trip;
         } catch (error) {
             throw new Error(error.message);

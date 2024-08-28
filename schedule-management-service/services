@@ -1,0 +1,33 @@
+const TrainSchedule = require('../models/trainSchedule');
+
+class TrainScheduleService {
+  static async createTrainSchedule(trainScheduleData) {
+    return await TrainSchedule.create(trainScheduleData);
+  }
+
+  static async getAllTrainSchedules() {
+    return await TrainSchedule.findAll();
+  }
+
+  static async getTrainScheduleById(trainID) {
+    return await TrainSchedule.findByPk(trainID);
+  }
+
+  static async updateTrainSchedule(trainID, trainScheduleData) {
+    const trainSchedule = await TrainSchedule.findByPk(trainID);
+    if (!trainSchedule) {
+      throw new Error('TrainSchedule not found');
+    }
+    return await trainSchedule.update(trainScheduleData);
+  }
+
+  static async deleteTrainSchedule(trainID) {
+    const trainSchedule = await TrainSchedule.findByPk(trainID);
+    if (!trainSchedule) {
+      throw new Error('TrainSchedule not found');
+    }
+    return await trainSchedule.destroy();
+  }
+}
+
+module.exports = TrainScheduleService;
