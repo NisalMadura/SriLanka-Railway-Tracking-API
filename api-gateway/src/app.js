@@ -10,17 +10,17 @@ const { checkJwt, checkAdminRole } = require('./middlewares/authMiddleware');
 
 const app = express();
 
-app.use(cors()); // Enable CORS for all routes
+app.use(cors()); 
 app.use(morgan('dev'));
-app.use(express.json()); // Parse JSON bodies
+app.use(express.json()); 
 
-// Register routes with authentication
+
 app.use('/api', checkJwt, checkAdminRole, trainRoutes);
 app.use('/api', checkJwt, checkAdminRole, engineRoutes);
 app.use('/api/routes', checkJwt, checkAdminRole, routeRoutes);
 app.use('/api/trips', checkJwt, checkAdminRole, tripRoutes);
 
-// Register public routes (no authentication)
+
 app.use('/train-data', trainDataRoutes);
 
 module.exports = app;

@@ -46,7 +46,7 @@ async function fetchData(iotId) {
             return;
         }
 
-        // Extract data
+        
         const locationDetails = locationData;
         const trainDetails = trainData;
         const trips = tripData.trips[0]; 
@@ -58,7 +58,7 @@ async function fetchData(iotId) {
 
         const departureTime = moment.tz(trips.DepartureTime, 'Asia/Colombo');
 
-        // Calculate the arrival time by adding the duration to the departure time
+        
         let arrivalTime = null;
         if (departureTime && trips.Duration) {
             const durationParts = trips.Duration.split(':').map(Number);
@@ -69,7 +69,7 @@ async function fetchData(iotId) {
                 .add(durationParts[2], 'seconds');
         }
 
-        // Format departure and arrival times for MySQL
+        
         const formattedDepartureTime = convertToMySQLDatetime(departureTime.toDate());
         const formattedArrivalTime = convertToMySQLDatetime(arrivalTime ? arrivalTime.toDate() : null);
         const timestamp = convertToMySQLDatetime(moment.tz(locationDetails.Timestamp, 'Asia/Colombo').toDate());

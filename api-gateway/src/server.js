@@ -1,21 +1,21 @@
-const express = require('express'); // Make sure to include this
+const express = require('express'); 
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
-const app = require('./app'); // Import your existing app if you have routing or middleware setup there
+const app = require('./app'); 
 
 const port = process.env.PORT || 3003;
-const server = http.createServer(app); // Use the existing app from your routing
+const server = http.createServer(app); 
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3001", // Your frontend origin
+    origin: "http://localhost:3001", 
     methods: ["GET", "POST"]
   }
 });
 
-app.use(cors()); // Use CORS middleware for express
+app.use(cors()); 
 
-// Socket.IO connection
+
 io.on('connection', (socket) => {
   console.log('New client connected');
   socket.on('disconnect', () => {

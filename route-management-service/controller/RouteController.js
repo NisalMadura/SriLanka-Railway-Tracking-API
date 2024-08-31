@@ -55,7 +55,7 @@ const RouteController = {
             if (!result) {
                 return res.status(404).json({ error: 'Route not found' });
             }
-            res.status(204).send(); // No content
+            res.status(204).send(); 
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
