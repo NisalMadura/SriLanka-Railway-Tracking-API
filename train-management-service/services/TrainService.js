@@ -11,7 +11,7 @@ async function createTrain(trainData) {
 
 async function getAllTrains() {
     try {
-        return await Train.findAll(); // Use findAll to get all trains
+        return await Train.findAll(); 
     } catch (error) {
         throw new Error(`Error fetching all trains: ${error.message}`);
     }
@@ -19,7 +19,7 @@ async function getAllTrains() {
 
 async function getTrain(train_no) {
     try {
-        return await Train.findOne({ where: { train_no } }); // Use findOne to get a specific train
+        return await Train.findOne({ where: { train_no } }); 
     } catch (error) {
         throw new Error(`Error fetching train: ${error.message}`);
     }
@@ -29,9 +29,9 @@ async function updateTrain(train_no, trainData) {
     try {
         const [affectedRows] = await Train.update(trainData, { where: { train_no } });
         if (affectedRows === 0) {
-            return null; // No rows updated, train not found
+            return null; 
         }
-        return Train.findOne({ where: { train_no } }); // Return the updated train
+        return Train.findOne({ where: { train_no } }); 
     } catch (error) {
         throw new Error(`Error updating train: ${error.message}`);
     }
@@ -41,7 +41,7 @@ async function deleteTrain(train_no) {
     try {
         const deletedRows = await Train.destroy({ where: { train_no } });
         if (deletedRows === 0) {
-            return null; // No rows deleted, train not found
+            return null; 
         }
         return { message: 'Train deleted successfully' };
     } catch (error) {

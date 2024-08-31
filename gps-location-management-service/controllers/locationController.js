@@ -85,7 +85,7 @@ exports.getLocationByIotId = async (req, res) => {
     
     const location = await Location.findOne({
       where: { IOTId: req.params.iotId },
-      order: [['createdAt', 'DESC']] // or 'updatedAt' if that is your timestamp field
+      order: [['createdAt', 'DESC']] 
     });
 
     if (location) {

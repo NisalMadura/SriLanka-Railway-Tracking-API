@@ -1,4 +1,4 @@
-const TrainSchedule = require('../models/trainSchedule');
+const TrainSchedule = require('./models/trainSchedule');
 
 class TrainScheduleService {
   static async createTrainSchedule(trainScheduleData) {
