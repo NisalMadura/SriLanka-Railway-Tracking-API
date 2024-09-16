@@ -1,3 +1,9 @@
+NIBM Index No - COBSCCOMPY4231P-008
+
+Name - H.N.M.D.Perera
+
+Coventry ID - 14382444
+
 # Train Tracking API
 ## Overview
 This project involves the development of a real-time train tracking system for Sri Lanka Railways. The system utilizes IoT devices installed on train engines to transmit GPS data at one-minute intervals. This data is ingested by a RESTful API, which retains the information for 90 days, and is consumed by multiple client applications for various administrative and technical purposes.
